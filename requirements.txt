@@ -1,0 +1,3 @@
+chess>=1.10
+numpy
+onnxruntime>=1.17
