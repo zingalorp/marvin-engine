@@ -7,6 +7,10 @@ predicts the move a human would play and how long they would spend on it. So the
 played differently in bullet than in classical, or with ten seconds left rather than ten minutes:
 faster, and with more mistakes, when short on time.
 
+![Move accuracy by rating for Marvin and Maia-3](docs/accuracy_by_rating.png)
+
+<sub>Marvin 79M and Maia-3 79M on 3.9M positions from rated Lichess games played after both models' training data ends, with equal numbers per time control (bullet, blitz, rapid) and 100-point rating band. Under Maia-3's own test protocol (blitz only, from ply 10, stopping once either clock is under 30 s), move accuracy is 58.93% for Marvin and 58.59% for Maia-3.</sub>
+
 ## Setup
 
 Python 3.10+.
@@ -84,6 +88,37 @@ records a loss on time.
 Without a clock (`go nodes`, `go infinite`, `go movetime`), Marvin assumes `FallbackTimeControl`,
 estimates the missing move times with the model and simulates both clocks. It replies
 immediately, or within `movetime` if one is given.
+
+## How human-like is it?
+
+On the same test set as the figure, Maia-3 / Marvin:
+
+| | Move accuracy | Move NLL | WDL accuracy |
+|---|---|---|---|
+| All | 56.81% / 57.99% | 1.310 / 1.254 | 61.7% / 65.6% |
+| Bullet | 53.58% / 55.98% | 1.461 / 1.338 | 59.4% / 66.1% |
+| Blitz | 58.26% / 58.77% | 1.241 / 1.219 | 61.7% / 64.8% |
+| Rapid | 58.59% / 59.22% | 1.228 / 1.206 | 64.1% / 65.8% |
+| Clock over 50% of base time | 55.78% / 56.62% | 1.337 / 1.301 | 60.1% / 61.6% |
+| Clock 20–50% | 59.85% / 61.18% | 1.204 / 1.145 | 67.5% / 73.8% |
+| Clock 5–20% | 59.19% / 61.57% | 1.262 / 1.134 | 64.8% / 76.2% |
+| Clock under 5% | 56.40% / 61.00% | 1.424 / 1.150 | 58.6% / 78.5% |
+
+Think time in seconds given the move played, human / Marvin, on 639,393 held-out positions from
+June 2021 with centisecond clocks (Maia-3 doesn't predict think time):
+
+| | Mean | Median | 90th percentile | Median error |
+|---|---|---|---|---|
+| All | 4.59 / 4.56 | 2.16 / 2.08 | 10.92 / 10.72 | 0.80 |
+| Bullet | 1.99 / 1.99 | 1.28 / 1.28 | 4.28 / 4.32 | 0.40 |
+| Blitz | 4.97 / 4.91 | 2.72 / 2.64 | 11.52 / 11.36 | 1.04 |
+| Rapid | 9.46 / 9.45 | 5.28 / 5.04 | 22.24 / 22.16 | 2.16 |
+| Under 10 s on the clock | 0.97 / 0.98 | 0.79 / 0.80 | 2.15 / 2.16 | 0.27 |
+
+## Acknowledgments
+
+Marvin's architecture builds on Chessformer, from Monroe et al.,
+[Chessformer: A Unified Architecture for Chess Modeling](https://arxiv.org/abs/2605.19091) (ICLR 2026).
 
 ## License
 
